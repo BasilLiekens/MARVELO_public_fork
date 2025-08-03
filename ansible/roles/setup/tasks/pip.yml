@@ -1,18 +1,30 @@
 ---
+- name: make and activate venv
+  shell:  if [ ! -d installations ]; then
+            mkdir installations;
+            cd installations; 
+            python3 -m venv .venv;
+          fi
+  args:
+    executable: /bin/bash # default terminal on RPi is not bash, hence the source command would not exist
+
 - name: Ensure Pip is installed.
-  package:
-    name: python3-pip
-    state: present
+  shell:  source /home/RPi/installations/.venv/bin/activate;
+          which pip # only possible to check if the correct .venv is activated
+  register: command_result
+  failed_when: command_result.stdout==""
+  args:
+    executable: /bin/bash
 
 - name: Upgrade to most recent pip via old pip
   pip: 
-    executable: pip3 
+    virtualenv: /home/RPi/installations/.venv # use this to force the use of a venv
     name: pip
     state: latest
 
 - name: install required packages (You can add packages if needed)
   pip: 
-    executable: pip3 
+    virtualenv: /home/RPi/installations/.venv # use this to force the use of a venv
     name: "{{ item['name'] }}"
     state: present
   with_items: "{{ pip3_packages }}"
@@ -20,7 +32,7 @@
 
 - name: install required packages with specific version (You can add packages if needed)
   pip: 
-    executable: pip3 
+    virtualenv: /home/RPi/installations/.venv # use this to force the use of a venv
     name: "{{item.name}}"
     state: present
     version: "{{item.version}}"

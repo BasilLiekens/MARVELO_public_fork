@@ -1,7 +1,10 @@
 ---
 - name: Get dispynode.py path
-  command: which dispynode.py
+  shell:  source /home/RPi/installations/.venv/bin/activate;
+          which dispynode.py
   register: dispynode_path
+  args:
+    executable: /bin/bash
   tags:
     - renew_service
 
